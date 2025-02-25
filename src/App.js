@@ -1,7 +1,7 @@
 
 import { useState } from 'react'
 import { db } from './firebaseConnection'
-import { doc , setDoc, collection, addDoc, getDoc, getDocs } from 'firebase/firestore'
+import { doc , setDoc, collection, addDoc, getDoc, getDocs, updateDoc } from 'firebase/firestore'
 
 import './app.css';
 
@@ -9,6 +9,7 @@ import './app.css';
 function App() {
   const [titulo, setTitulo] = useState('')
   const [autor, setAutor] = useState('')
+  const [idPost, setIdPost] = useState('')
 
   const [posts, setPosts] = useState([])
 
@@ -73,11 +74,25 @@ function App() {
 
   }
 
+  function atualizarPost() {
+    alert('TESTE')
+  }
+
   return (
     <div className="App">
       <h1>React Js + Firebase :)</h1>
 
       <div className='container'>
+
+        <label>ID do post:</label>
+        <input 
+        placeholder='Digite o ID do post'
+        value={idPost}
+        onChange={ (e) => setIdPost(e.target.value)}
+        /> <br />
+
+
+
         <label>Titulo:</label>
         <textarea
         type="text"
@@ -95,12 +110,16 @@ function App() {
         />
 
         <button onClick={handleAdd} >Adicionar Post</button>
-        <button onClick={buscarPost}>Buscar post</button>
+        <button onClick={buscarPost}>Buscar post</button> <br />
+
+        <button onClick={atualizarPost}>Atualizar Post</button>
+
 
         <ul>
           {posts.map((post) => {
             return (
               <li key={post.id}>
+                <strong>ID: {post.id}</strong> <br />
                 <p>Titulo: {post.titulo}</p>
                 <p>Autor: {post.autor}</p>
               </li>
