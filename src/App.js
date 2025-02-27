@@ -2,9 +2,12 @@ import { useState, useEffect } from 'react'
 import { db, auth } from './firebaseConnection';
 import { doc, setDoc, collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore'
 
-import{ getAuth, createUserWithEmailAndPassword } from 'firebase/auth'
+import{ signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
+
 
 import './app.css';
+
+
 
 function App() {
   const [titulo, setTitulo] = useState('');
@@ -13,6 +16,9 @@ function App() {
 
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
+
+  const [user, setUser] = useState(false)
+  const [userDetail, setUserDetail] = useState({})
 
   const [posts, setPosts] = useState([]);
 
@@ -150,9 +156,51 @@ function App() {
       })
     }
 
+    async function logarUsuario(){
+      await signInWithEmailAndPassword(auth, email, senha)
+      .then((value) => {
+        console.log("USUÁRIO LOGADO COM SUCESSO")
+        console.log(value.user)
+
+        setUserDetail ({
+          uid: value.user.uid,
+          email: value.user.email
+        })
+        setUser(true)
+
+        setEmail('')
+        setSenha('')  
+      })
+      .catch((error) => {
+        if (error.code === 'auth/wrong-password'){
+          alert("SENHA INCORRETA")
+        }else if (error.code === 'auth/user-not-found'){
+          alert("USUÁRIO NÃO CADASTRADO")
+        }
+      })
+    }
+
+
+    async function fazerLogout(){
+      await auth.signOut();
+      setUser(false)
+      setUserDetail({})
+      console.log("USUÁRIO DESCONECTADO")
+    }
+
   return (
     <div>
       <h1>ReactJS + Firebase :)</h1>
+
+      {user && (
+        <div>
+          <strong>Seja Bem Vindo(a) (Você está logado!)</strong> <br />
+          <strong>UID: {userDetail.uid}</strong> <br />
+          <strong>Email: {userDetail.email}</strong> <br /> <br />
+          <button onClick={fazerLogout}>Sair da conta</button>
+          <br />
+        </div>
+      )}
 
       <div className="container">
         <h2>Usuaríos</h2>
@@ -172,6 +220,7 @@ function App() {
         /> <br />
 
         <button onClick={novoUduario}>Cadastrar</button>
+        <button onClick={logarUsuario}>Fazer Login</button>
 
         
 
