@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react'
 import { db, auth } from './firebaseConnection';
-import { doc, setDoc, collection, addDoc, getDoc, getDocs, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore'
+import { doc, collection, addDoc, getDocs, updateDoc, deleteDoc, onSnapshot } from 'firebase/firestore'
 
-import{ signInWithEmailAndPassword, createUserWithEmailAndPassword } from 'firebase/auth'
+import{ signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged } from 'firebase/auth'
 
 
 import './app.css';
@@ -24,7 +24,7 @@ function App() {
 
   useEffect (()=> {
     async function loadPosts(){
-      const unsub = onSnapshot(collection(db, "posts"), (snapshot) => {
+      onSnapshot(collection(db, "posts"), (snapshot) => {
         let listaPost = []
 
         snapshot.forEach((doc) => {
@@ -41,6 +41,28 @@ function App() {
 
     loadPosts();
   }, [])
+
+    useEffect(()=>{
+      async function checkLogin(){
+        onAuthStateChanged(auth, (user) => {
+          if (user){
+            console.log("USUÁRIO LOGADO")
+            //SE O USUÁRIO ESTIVER LOGADO
+            setUser(true)
+            setUserDetail({
+              uid: user.uid,
+              email: user.email
+            })
+          }else{
+            //SE O USUÁRIO NÃO ESTIVER LOGADO
+            setUser(false)
+            setUserDetail({})
+          }
+        })
+      }
+
+      checkLogin();
+    }, [])
 
 
   async function handleAdd(){
